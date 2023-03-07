@@ -1,4 +1,8 @@
-from flask import Flask, request, render_template, session
+
+
+from flask import Flask, request, render_template, session, redirect, flash
+from werkzeug.security import check_password_hash, generate_password_hash
+
 
 app = Flask(__name__)
 
@@ -22,18 +26,21 @@ def login():
 
         # Ensure username was submitted
         if not request.form.get("username"):
-            return apology("must provide username", 400)
+            flash("Username not provided")
+            return redirect("/login/")
 
         # Ensure password was submitted
         elif not request.form.get("password"):
-            return apology("must provide password", 400)
+            flash("Password not provided")
+            return redirect("/login/")
 
         # Query database for username
-        rows = db.execute("SELECT * FROM users WHERE username = ?", request.form.get("username"))
+        rows = db.execute("SELECT password, id FROM users WHERE username = ?", request.form.get("username"))
 
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
-            return apology("invalid username and/or password", 400)
+            flash("Invalid username and/or password")
+            return redirect("/login/")
 
         # Remember which user has logged in
         session["user_id"] = rows[0]["id"]
