@@ -1,14 +1,9 @@
-from flask import Flask
+from flask import Flask, request, render_template
 
 app = Flask(__name__)
 
-@app.route("/")
+@app.route("/", methods=["GET"])
 def index():
-
-    # User reached by POST
-    if request.method = "POST":
-    
     # User reached by GET
-    else:
 
-        return render_template("index.html")
+    return render_template("index.html")
