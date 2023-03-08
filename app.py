@@ -57,3 +57,5 @@ def login():
     
 
 @app.route("/register/", methods=["GET", "POST"])
+def register():
+    """Register page for application"""
