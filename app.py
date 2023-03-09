@@ -9,11 +9,12 @@ app = Flask(__name__)
 
 # Connect to database
 con = sqlite3.connect("tutorial.db")
+cur = con.cursor()
 
 @app.route("/", methods=["GET"])
 def index():
     """Homepage for application"""
-    
+
     # User reached route via GET
     return render_template("index.html")
 
@@ -39,7 +40,8 @@ def login():
             return redirect("/login/")
 
         # Query database for username
-        rows = db.execute("SELECT password, id FROM users WHERE username = ?", request.form.get("username"))
+        res = cur.execute("SELECT password, id FROM users WHERE username = ?", request.form.get("username"))
+        rows = res.fetchall()
 
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
@@ -78,7 +80,9 @@ def register():
 
         # Ensure username is not taken
         usernames = []
-        rows = db.execute("SELECT username FROM users")
+
+        res = cur.execute("SELECT username FROM users")
+        rows = res.fetchall()
 
         for row in rows:
             usernames.append(row["username"])
@@ -105,10 +109,12 @@ def register():
         # Generate password hash
         hash = generate_password_hash(request.form.get("password"))
 
-        db.execute("INSERT INTO users(username, hash) VALUES (?, ?)", request.form.get("username"), hash)
+        cur.execute("INSERT INTO users(username, hash) VALUES (?, ?)", request.form.get("username"), hash)
+        con.commit()
 
         # Log user in
-        rows = db.execute("SELECT * FROM users WHERE username = ?", request.form.get("username"))
+        res = cur.execute("SELECT * FROM users WHERE username = ?", request.form.get("username"))
+        rows = res.fetchall()
 
         # Remember which user has logged in
         session["user_id"] = rows[0]["id"]
