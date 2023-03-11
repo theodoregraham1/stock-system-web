@@ -107,9 +107,9 @@ def register():
             return redirect("/register")
 
         # Generate password hash
-        hash = generate_password_hash(request.form.get("password"))
+        password_hash = generate_password_hash(request.form.get("password"))
 
-        cur.execute("INSERT INTO users(username, hash) VALUES (?, ?)", request.form.get("username"), hash)
+        cur.execute("INSERT INTO users(username, hash) VALUES (?, ?)", request.form.get("username"), password_hash)
         con.commit()
 
         # Log user in
